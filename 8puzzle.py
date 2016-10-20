@@ -35,7 +35,24 @@ class Board:
             print " "
     def moveUp(self):
         loc = self.getZeroLocation()
-        tempVal = self.state[loc.y] [loc.x]
+        self.state[loc.y][loc.x] = self.state[loc.y - 1][loc.x]
+        self.state[loc.y - 1][loc.x] = 0
+
+    def moveRight(self):
+        loc = self.getZeroLocation()
+        self.state[loc.y][loc.x] = self.state[loc.y][loc.x + 1]
+        self.state[loc.y][loc.x + 1] = 0
+
+    def moveDown(self):
+        loc = self.getZeroLocation()
+        self.state[loc.y][loc.x] = self.state[loc.y + 1][loc.x]
+        self.state[loc.y + 1][loc.x] = 0
+
+    def moveLeft(self):
+        loc = self.getZeroLocation()
+        self.state[loc.y][loc.x] = self.state[loc.y][loc.x - 1]
+        self.state[loc.y ][loc.x - 1] = 0
+
 
 
 #holds the Board object internally, used as a helper to the Board, performs ops on it
@@ -76,7 +93,7 @@ def findSolution(puzzle, goal):
 
     while queue:
         legalMoves = queue[0].data.getLegalMoves()
-        for item in legalMoves
+        for item in legalMoves:
             tempPuzzle = queue[0]
             tempPuzzle.move(item)
             queue[0].append(TreeNode(tempPuzzle))
@@ -88,8 +105,8 @@ endBoard = []
 if(int(userInput) == 1):
     #make default board
     startBoard = []
-    startBoard.append([1, 2, 0])
-    startBoard.append([4, 5, 3])
+    startBoard.append([1, 5, 2])
+    startBoard.append([4, 0, 3])
     startBoard.append([7, 8, 6])
 
     endBoard.append([1, 2, 3])
@@ -106,6 +123,7 @@ else:
 #board test
 userBoard = Board(startBoard)
 userBoard.display()
+#userBoard.moveLeft()
 
 goalBoard = Board(endBoard)
 

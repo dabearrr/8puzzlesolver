@@ -12,11 +12,28 @@ class Pair:
         self.y = y
 
 #used to store the board state itself, also has a compare func, display func
+#intitializes with a initial board state.
+#clone copies another board
+#isequal checks if the board is equal to another board, mostly used to see if were at the goal state w/ wrapper class
+#display prints the contents of the 2d array
+#getzeroloc gets the location of where the zero is at. considering adding a member that just save the loc, and updates
+#every move.
+#The move functions move the blank left right up or down (our operators), does not error check because the wrapper does
+
 class Board:
     def __init__(self):
         self.state = []
+        self.zeroloc = 0
     def __init__(self, initial_state):
         self.state = initial_state
+        for i in range(0, len(self.state)):
+            for j in range(0, len(self.state)):
+                if self.state[i][j] == 0:
+                    initialZero = Pair(j, i)
+        self.zeroloc = initialZero
+    def clone(self, boardB):
+        self.state = boardB.state
+        self.zeroloc = boardB.state
     def isEqual(self, boardB):
         for i in range(0, len(boardB.state)):
             for j in range(0, len(boardB.state)):
@@ -24,34 +41,45 @@ class Board:
                     return False
         return True
     def getZeroLocation(self):
-        for i in range(0, len(self.state)):
-            for j in range(0, len(self.state)):
-                if self.state[i][j] == 0:
-                    return Pair(j, i)
+        # for i in range(0, len(self.state)):
+        #     for j in range(0, len(self.state)):
+        #         if self.state[i][j] == 0:
+        #             return Pair(j, i)
+        return self.zeroloc
     def display(self):
+        for i in range(0, len(self.state)):
+            print "-",
+        print " "
         for i in range(0, len(self.state)):
             for j in range(0, len(self.state)):
                 print repr(self.state[i][j]),
             print " "
+        for i in range(0, len(self.state)):
+            print "-",
+        print " "
     def moveUp(self):
         loc = self.getZeroLocation()
         self.state[loc.y][loc.x] = self.state[loc.y - 1][loc.x]
         self.state[loc.y - 1][loc.x] = 0
+        self.zeroloc = Pair(self.zeroloc.x, self.zeroloc.y - 1)
 
     def moveRight(self):
         loc = self.getZeroLocation()
         self.state[loc.y][loc.x] = self.state[loc.y][loc.x + 1]
         self.state[loc.y][loc.x + 1] = 0
+        self.zeroloc = Pair(self.zeroloc.x + 1, self.zeroloc.y)
 
     def moveDown(self):
         loc = self.getZeroLocation()
         self.state[loc.y][loc.x] = self.state[loc.y + 1][loc.x]
         self.state[loc.y + 1][loc.x] = 0
+        self.zeroloc = Pair(self.zeroloc.x, self.zeroloc.y + 1)
 
     def moveLeft(self):
         loc = self.getZeroLocation()
         self.state[loc.y][loc.x] = self.state[loc.y][loc.x - 1]
         self.state[loc.y ][loc.x - 1] = 0
+        self.zeroloc = Pair(self.zeroloc.x - 1, self.zeroloc.y)
 
 
 
@@ -123,12 +151,13 @@ else:
 #board test
 userBoard = Board(startBoard)
 userBoard.display()
-#userBoard.moveLeft()
-
+userBoard.moveLeft()
+userBoard.display()
 goalBoard = Board(endBoard)
 
 #puzzle test
 userPuzzle = Puzzle(userBoard)
+userPuzzle.move("r")
 userPuzzle.display()
 print userPuzzle.getLegalMoves()
 print userPuzzle.isGoal(goalBoard)

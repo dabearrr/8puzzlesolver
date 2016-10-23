@@ -1,3 +1,5 @@
+import copy
+
 #for creating the tree itself
 class TreeNode:
     def __init__(self, data):
@@ -87,6 +89,8 @@ class Board:
 class Puzzle:
     def __init__(self, board):
         self.board = board
+    def clone(self, puzzleB):
+        self.board = puzzleB.board
     def display(self):
         self.board.display()
     def isGoal(self, goalBoard):
@@ -120,11 +124,41 @@ def findSolution(puzzle, goal):
     queue.append(root)
 
     while queue:
+        print "expanding another node"
+        queue[0].data.display()
+        if(queue[0].data.isGoal(goal)):
+            print "found it"
+            return
         legalMoves = queue[0].data.getLegalMoves()
         for item in legalMoves:
-            tempPuzzle = queue[0]
-            tempPuzzle.move(item)
-            queue[0].append(TreeNode(tempPuzzle))
+            print item
+            queue[0].append(TreeNode(Puzzle(Board(copy.deepcopy(queue[0].data.board.state)))))
+            queue[0].children[-1].data.move(item)
+        for node in queue[0].children:
+            queue.append(node)
+            node.data.display()
+        queue.pop(0)
+
+    # #print "expanding another node"
+    # queue[0].data.display()
+    # if (queue[0].data.isGoal(goal)):
+    #     print "found it"
+    #     return
+    # legalMoves = queue[0].data.getLegalMoves()
+    # for item in legalMoves:
+    #     print item
+    #     queue[0].append(TreeNode(Puzzle(Board(list(queue[0].data.board.state)))))
+    #     queue[0].children[-1].data.move(item)
+    #     queue[-1].data.display()
+    #     #print len(queue[0].children)
+    # for node in queue[0].children:
+    #     #print id(node)
+    #     queue.append(node)
+    #     node.data.display()
+
+
+    queue.pop(0)
+    return
 
 #take in input
 userInput = raw_input("Welcome to Raymond Farias's puzzle solver: Enter 1 for the default puzzle, or 2 to enter your own.")
@@ -133,9 +167,9 @@ endBoard = []
 if(int(userInput) == 1):
     #make default board
     startBoard = []
-    startBoard.append([1, 5, 2])
-    startBoard.append([4, 0, 3])
-    startBoard.append([7, 8, 6])
+    startBoard.append([1, 2, 3])
+    startBoard.append([4, 0, 6])
+    startBoard.append([7, 5, 8])
 
     endBoard.append([1, 2, 3])
     endBoard.append([4, 5, 6])
@@ -150,14 +184,16 @@ else:
 
 #board test
 userBoard = Board(startBoard)
-userBoard.display()
-userBoard.moveLeft()
-userBoard.display()
+# userBoard.display()
+#userBoard.moveLeft()
+# userBoard.display()
 goalBoard = Board(endBoard)
 
 #puzzle test
 userPuzzle = Puzzle(userBoard)
-userPuzzle.move("r")
-userPuzzle.display()
-print userPuzzle.getLegalMoves()
-print userPuzzle.isGoal(goalBoard)
+# userPuzzle.display()
+# print userPuzzle.getLegalMoves()
+# print userPuzzle.isGoal(goalBoard)
+
+#try solution
+findSolution(userPuzzle, goalBoard)

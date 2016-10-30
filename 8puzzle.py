@@ -12,6 +12,8 @@ class Pair:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+    def display(self):
+        print self.x, self.y
 
 #used to store the board state itself, also has a compare func, display func
 #intitializes with a initial board state.
@@ -34,14 +36,38 @@ class Board:
                     initialZero = Pair(j, i)
         self.zeroloc = initialZero
     def clone(self, boardB):
-        self.state = boardB.state
-        self.zeroloc = boardB.state
+        self.state = copy.deepcopy(boardB.state)
+        self.zeroloc = copy.deepcopy(boardB.state)
+    def getLoc(self, val):
+        for i in range(0, len(self.state)):
+            for j in range(0, len(self.state)):
+                if (self.state[i][j] == val):
+                    return Pair(j, i)
     def isEqual(self, boardB):
         for i in range(0, len(boardB.state)):
             for j in range(0, len(boardB.state)):
                 if(self.state[i][j] != boardB.state[i][j]):
                     return False
         return True
+    def getMisplacedTiles(self, boardB):
+        sumMisplacedTiles = 0
+        for i in range(0, len(boardB.state)):
+            for j in range(0, len(boardB.state)):
+                if (self.state[i][j] != boardB.state[i][j]):
+                    sumMisplacedTiles += 1
+        return sumMisplacedTiles
+    def getManhattanDistance(self, boardB):
+        manhattanDist = 0
+        for i in range(0, len(boardB.state)):
+            for j in range(0, len(boardB.state)):
+                if (self.state[i][j] != boardB.state[i][j]):
+                    goalLoc = boardB.getLoc(self.state[i][j])
+                    curLoc = Pair(j, i)
+                    # goalLoc.display()
+                    # curLoc.display()
+                    manhattanDist += abs(goalLoc.x - curLoc.x) + abs(goalLoc.y - curLoc.y)
+        return manhattanDist
+
     def getZeroLocation(self):
         # for i in range(0, len(self.state)):
         #     for j in range(0, len(self.state)):
@@ -116,6 +142,11 @@ class Puzzle:
             self.board.moveDown()
         elif (direction == "l"):
             self.board.moveLeft()
+    def getMisplacedTiles(self, goalBoard):
+        return self.board.getMisplacedTiles(goalBoard)
+    def getManhattanDistance(self, goalBoard):
+        return self.board.getManhattanDistance(goalBoard)
+
 
 def findSolution(puzzle, goal):
     # create the root
@@ -158,7 +189,26 @@ def findSolution(puzzle, goal):
 
 
     queue.pop(0)
-    return
+    return root
+
+def pathFinder(graph, start, end):
+    # maintain a queue of paths
+    queue = []
+    # push the first path into the queue
+    queue.append([start])
+    while queue:
+        # get the first path from the queue
+        path = queue.pop(0)
+        # get the last node from the path
+        node = path[-1]
+        # path found
+        if node == end:
+            return path
+        # enumerate all adjacent nodes, construct a new path and push it into the queue
+        for adjacent in graph.get(node, []):
+            new_path = list(path)
+            new_path.append(adjacent)
+            queue.append(new_path)
 
 #take in input
 userInput = raw_input("Welcome to Raymond Farias's puzzle solver: Enter 1 for the default puzzle, or 2 to enter your own.")
@@ -166,11 +216,14 @@ startBoard = []
 endBoard = []
 if(int(userInput) == 1):
     #make default board
-    startBoard = []
     startBoard.append([1, 2, 3])
     startBoard.append([4, 0, 6])
     startBoard.append([7, 5, 8])
-
+    # startBoard = []
+    # startBoard.append([4, 1, 3])
+    # startBoard.append([0, 2, 6])
+    # startBoard.append([7, 5, 8])
+    #1 + 1 + 0 + 3 + 1 + 0 + 0 + 1 + 1 = 8
     endBoard.append([1, 2, 3])
     endBoard.append([4, 5, 6])
     endBoard.append([7, 8, 0])
@@ -196,4 +249,6 @@ userPuzzle = Puzzle(userBoard)
 # print userPuzzle.isGoal(goalBoard)
 
 #try solution
-findSolution(userPuzzle, goalBoard)
+print userPuzzle.getManhattanDistance(goalBoard)
+print userPuzzle.getMisplacedTiles(goalBoard)
+#findSolution(userPuzzle, goalBoard)

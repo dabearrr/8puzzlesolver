@@ -12,7 +12,7 @@ class TreeNode:
     def append(self, newNode):
         self.children.append(newNode)
 
-
+#Pair class, used as a helper for later functions
 class Pair:
     def __init__(self, x, y):
         self.x = x
@@ -110,8 +110,8 @@ class Board:
         self.zeroloc = Pair(self.zeroloc.x - 1, self.zeroloc.y)
 
 
-
 #holds the Board object internally, used as a helper to the Board, performs ops on it
+#weapper class that calls board's internal functions, with some extra
 class Puzzle:
     def __init__(self, board):
         self.board = board
@@ -178,7 +178,7 @@ def findSolutionUCS(puzzle, goal):
         queue[0].data.display()
         if(queue[0].data.isGoal(goal)):
             print "Goal Has Been Found!"
-            return root
+            return queue[0]
 
         #get all legal moves
         legalMoves = queue[0].data.getLegalMoves()
@@ -211,7 +211,7 @@ def findSolutionMTH(puzzle, goal):
         queue[0].data.display()
         if (queue[0].data.isGoal(goal)):
             print "Goal Has Been Found!"
-            return root
+            return queue[0]
 
         # get all legal moves
         legalMoves = queue[0].data.getLegalMoves()
@@ -276,6 +276,7 @@ endBoard = []
 endBoard.append([1, 2, 3])
 endBoard.append([4, 5, 6])
 endBoard.append([7, 8, 0])
+
 if(int(userInput) == 1):
     #make default board
     # startBoard.append([1, 2, 3])

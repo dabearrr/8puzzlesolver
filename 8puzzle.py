@@ -6,6 +6,7 @@ class TreeNode:
     def __init__(self, data):
         self.data = data
         self.children = []
+        self.parent = 0
         self.hVal = 0
     def append(self, newNode):
         self.children.append(newNode)
@@ -176,6 +177,7 @@ def findSolutionUCS(puzzle, goal):
             print item,
             queue[0].append(TreeNode(Puzzle(Board(copy.deepcopy(queue[0].data.board.state)))))
             queue[0].children[-1].data.move(item)
+            queue[0].children[-1].parent = queue[0]
         print
         #add all children to the queue
         for node in queue[0].children:
@@ -209,6 +211,7 @@ def findSolutionMTH(puzzle, goal):
             queue[0].append(TreeNode(Puzzle(Board(copy.deepcopy(queue[0].data.board.state)))))
             queue[0].children[-1].data.move(item)
             queue[0].children[-1].hVal = (queue[0].children[-1].data.getMisplacedTiles(goal))
+            queue[0].children[-1].parent = queue[0]
         print
         # add all children to the queue
         for node in queue[0].children:
@@ -230,7 +233,7 @@ def findSolutionMDH(puzzle, goal):
         queue[0].data.display()
         if (queue[0].data.isGoal(goal)):
             print "Goal Has Been Found!"
-            return root
+            return queue[0]
 
         # get all legal moves
         legalMoves = queue[0].data.getLegalMoves()
@@ -241,6 +244,7 @@ def findSolutionMDH(puzzle, goal):
             queue[0].append(TreeNode(Puzzle(Board(copy.deepcopy(queue[0].data.board.state)))))
             queue[0].children[-1].data.move(item)
             queue[0].children[-1].hVal = (queue[0].children[-1].data.getManhattanDistance(goal))
+            queue[0].children[-1].parent = queue[0]
         print
         # add all children to the queue
         for node in queue[0].children:
@@ -251,11 +255,21 @@ def findSolutionMDH(puzzle, goal):
     print "error, queue ended without finding answer"
     return root
 
+def getDepth(x):
+    count = 0
+    temp = x.parent
+    while temp != 0:
+        temp = temp.parent
+        count += 1
+    return count
 
 #take in input
 userInput = raw_input("Welcome to Raymond Farias's puzzle solver: Enter 1 for the default puzzle, or 2 to enter your own.")
 startBoard = []
 endBoard = []
+endBoard.append([1, 2, 3])
+endBoard.append([4, 5, 6])
+endBoard.append([7, 8, 0])
 if(int(userInput) == 1):
     #make default board
     # startBoard.append([1, 2, 3])
@@ -266,48 +280,82 @@ if(int(userInput) == 1):
     startBoard.append([0, 2, 6])
     startBoard.append([7, 5, 8])
     #1 + 1 + 0 + 3 + 1 + 0 + 0 + 1 + 1 = 8
-    endBoard.append([1, 2, 3])
-    endBoard.append([4, 5, 6])
-    endBoard.append([7, 8, 0])
+
 elif(int(userInput) == 2):
     #take in user board
     print("Enter your puzzle, enter a zero to represent the blank.")
+    userInput = raw_input("Enter your first row, use space between numbers")
+    tempList = map(int, userInput.split())
+    print tempList
+    startBoard.append(tempList)
+    userInput = raw_input("Enter your second row, use space between numbers")
+    tempList = map(int, userInput.split())
+    print tempList
+    startBoard.append(tempList)
+    userInput = raw_input("Enter your third row, use space between numbers")
+    tempList = map(int, userInput.split())
+    print tempList
+    startBoard.append(tempList)
+
+    tempBoard = Board(startBoard)
+    tempBoard.display()
 else:
     print ("Error, please enter a correct number.")
     raise "InputError"
 
-
+userInput = raw_input("1: Uniform Cost Search \n2: A* with Misplaced Tile H. \n3: A* with Manhattan Distance H.")
 #board test
 userBoard = Board(startBoard)
-# userBoard.display()
-#userBoard.moveLeft()
-# userBoard.display()
 goalBoard = Board(endBoard)
 
 #puzzle test
 userPuzzle = Puzzle(userBoard)
-# userPuzzle.display()
-# print userPuzzle.getLegalMoves()
-# print userPuzzle.isGoal(goalBoard)
 
-#try solution
-print "Initial Manhattan Distance is: " + repr(userPuzzle.getManhattanDistance(goalBoard))
-print "Initial Misplaced Tiles is: " + repr(userPuzzle.getMisplacedTiles(goalBoard))
-start1 = time.time()
-findSolutionUCS(userPuzzle, goalBoard)
-end1 = time.time()
-time1 = end1 - start1
+if(int(userInput) == 1):
+    start1 = time.time()
+    x = findSolutionUCS(userPuzzle, goalBoard)
+    end1 = time.time()
+    time1 = end1 - start1
+    print "1, Uniform Cost Search: " + repr(time1)
+    count = getDepth(x)
+    print "Solution Depth = " + repr(count)
+elif(int(userInput) == 2):
+    print "Initial Misplaced Tiles is: " + repr(userPuzzle.getMisplacedTiles(goalBoard))
+    start2 = time.time()
+    x = findSolutionMTH(userPuzzle, goalBoard)
+    end2 = time.time()
+    time2 = end2 - start2
+    print "2, Misplaced Tiles Heuristic A*: " + repr(time2)
+    count = getDepth(x)
+    print "Solution Depth = " + repr(count)
+elif(int(userInput) == 3):
+    print "Initial Manhattan Distance is: " + repr(userPuzzle.getManhattanDistance(goalBoard))
+    start3 = time.time()
+    x = findSolutionMDH(userPuzzle, goalBoard)
+    end3 = time.time()
+    time3 = end3 - start3
+    print "3, Manhattan Distance Heuristic A*: " + repr(time3)
+    count = getDepth(x)
+    print "Solution Depth = " + repr(count)
+else:
+    #try solution
+    print "Initial Manhattan Distance is: " + repr(userPuzzle.getManhattanDistance(goalBoard))
+    print "Initial Misplaced Tiles is: " + repr(userPuzzle.getMisplacedTiles(goalBoard))
+    start1 = time.time()
+    x = findSolutionUCS(userPuzzle, goalBoard)
+    end1 = time.time()
+    time1 = end1 - start1
 
-start2 = time.time()
-findSolutionMTH(userPuzzle, goalBoard)
-end2 = time.time()
-time2 = end2 - start2
+    start2 = time.time()
+    y = findSolutionMTH(userPuzzle, goalBoard)
+    end2 = time.time()
+    time2 = end2 - start2
 
-start3 = time.time()
-findSolutionMDH(userPuzzle, goalBoard)
-end3 = time.time()
-time3 = end3 - start3
+    start3 = time.time()
+    z = findSolutionMDH(userPuzzle, goalBoard)
+    end3 = time.time()
+    time3 = end3 - start3
 
-print "1, Uniform Cost Search: " + repr(time1)
-print "2, Misplaced Tiles Heuristic A*: " + repr(time2)
-print "3, Manhattan Distance Heuristic A*: " + repr(time3)
+    print "1, Uniform Cost Search: " + repr(time1)
+    print "2, Misplaced Tiles Heuristic A*: " + repr(time2)
+    print "3, Manhattan Distance Heuristic A*: " + repr(time3)

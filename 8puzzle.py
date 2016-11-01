@@ -176,6 +176,7 @@ def findSolutionUCS(puzzle, goal):
 
     # maxQueue holder
     mQueue = 0
+    tQueue = 0
 
     while queue:
         print "Expanding Node: "
@@ -183,6 +184,7 @@ def findSolutionUCS(puzzle, goal):
         if(queue[0].data.isGoal(goal)):
             print "Goal Has Been Found!"
             queue[0].mQueue = mQueue
+	    queue[0].tQueue = tQueue
             return queue[0]
 
         #get all legal moves
@@ -199,6 +201,7 @@ def findSolutionUCS(puzzle, goal):
         for node in queue[0].children:
             queue.append(node)
             node.data.display()
+	    tQueue += 1
         queue.pop(0)
         if len(queue) > mQueue:
             mQueue = len(queue)
@@ -215,6 +218,7 @@ def findSolutionMTH(puzzle, goal):
 
     #maxQueue holder
     mQueue = 0
+    tQueue = 0
 
     while queue:
         print "Expanding Node: "
@@ -222,6 +226,7 @@ def findSolutionMTH(puzzle, goal):
         if (queue[0].data.isGoal(goal)):
             print "Goal Has Been Found!"
             queue[0].mQueue = mQueue
+	    queue[0].tQueue = tQueue
             return queue[0]
 
         # get all legal moves
@@ -240,6 +245,7 @@ def findSolutionMTH(puzzle, goal):
         for node in queue[0].children:
             queue.append(node)
             node.data.display()
+	    tQueue += 1
         queue.pop(0)
         queue = sorted(queue, key=lambda treeNode: treeNode.hVal)
         if len(queue) > mQueue:
@@ -256,6 +262,7 @@ def findSolutionMDH(puzzle, goal):
 
     # maxQueue holder
     mQueue = 0
+    tQueue = 0
 
     while queue:
         print "Expanding Node: "
@@ -263,6 +270,7 @@ def findSolutionMDH(puzzle, goal):
         if (queue[0].data.isGoal(goal)):
             print "Goal Has Been Found!"
             queue[0].mQueue = mQueue
+	    queue[0].tQueue = tQueue
             return queue[0]
 
         # get all legal moves
@@ -281,6 +289,7 @@ def findSolutionMDH(puzzle, goal):
         for node in queue[0].children:
             queue.append(node)
             node.data.display()
+	    tQueue += 1
         queue.pop(0)
         queue = sorted(queue, key=lambda treeNode: treeNode.hVal)
         if len(queue) > mQueue:
@@ -345,6 +354,7 @@ if(int(userInput) == 1):
     count = getDepth(x)
     print "Solution Depth = " + repr(count)
     print "Max Queue Size = " + repr(x.mQueue)
+    print "Total Nodes = " + repr(x.tQueue)
     path = getPath(x)
     print "Solution Path: "
     for item in path:
@@ -361,6 +371,7 @@ elif(int(userInput) == 2):
     count = getDepth(x)
     print "Solution Depth = " + repr(count)
     print "Max Queue Size = " + repr(x.mQueue)
+    print "Total Nodes = " + repr(x.tQueue)
     path = getPath(x)
     print "Solution Path: "
     for item in path:
@@ -378,6 +389,7 @@ elif(int(userInput) == 3):
     print "Solution Depth = " + repr(count)
     path = getPath(x)
     print "Max Queue Size = " + repr(x.mQueue)
+    print "Total Nodes = " + repr(x.tQueue)
     print "Solution Path: "
     for item in path:
         item.data.display()
@@ -407,6 +419,7 @@ else:
 
     print "Solution Depth = " + repr(getDepth(z))
     print "Max Queue Size = " + repr(z.mQueue)
+    print "Total Nodes = " + repr(z.tQueue)
     path = getPath(z)
     print "Solution Path: "
     for x in path:

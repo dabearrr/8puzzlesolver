@@ -9,6 +9,7 @@ class TreeNode:
         self.children = []
         self.parent = 0
         self.hVal = 0
+        self.mQueue = 0
     def append(self, newNode):
         self.children.append(newNode)
 
@@ -173,11 +174,15 @@ def findSolutionUCS(puzzle, goal):
     queue = []
     queue.append(root)
 
+    # maxQueue holder
+    mQueue = 0
+
     while queue:
         print "Expanding Node: "
         queue[0].data.display()
         if(queue[0].data.isGoal(goal)):
             print "Goal Has Been Found!"
+            queue[0].mQueue = mQueue
             return queue[0]
 
         #get all legal moves
@@ -195,6 +200,8 @@ def findSolutionUCS(puzzle, goal):
             queue.append(node)
             node.data.display()
         queue.pop(0)
+        if len(queue) > mQueue:
+            mQueue = len(queue)
 
     print "error, queue ended without finding answer"
     return root
@@ -206,11 +213,15 @@ def findSolutionMTH(puzzle, goal):
     queue = []
     queue.append(root)
 
+    #maxQueue holder
+    mQueue = 0
+
     while queue:
         print "Expanding Node: "
         queue[0].data.display()
         if (queue[0].data.isGoal(goal)):
             print "Goal Has Been Found!"
+            queue[0].mQueue = mQueue
             return queue[0]
 
         # get all legal moves
@@ -231,6 +242,8 @@ def findSolutionMTH(puzzle, goal):
             node.data.display()
         queue.pop(0)
         queue = sorted(queue, key=lambda treeNode: treeNode.hVal)
+        if len(queue) > mQueue:
+            mQueue = len(queue)
     print "error, queue ended without finding answer"
     return root
 
@@ -241,11 +254,15 @@ def findSolutionMDH(puzzle, goal):
     queue = []
     queue.append(root)
 
+    # maxQueue holder
+    mQueue = 0
+
     while queue:
         print "Expanding Node: "
         queue[0].data.display()
         if (queue[0].data.isGoal(goal)):
             print "Goal Has Been Found!"
+            queue[0].mQueue = mQueue
             return queue[0]
 
         # get all legal moves
@@ -266,6 +283,8 @@ def findSolutionMDH(puzzle, goal):
             node.data.display()
         queue.pop(0)
         queue = sorted(queue, key=lambda treeNode: treeNode.hVal)
+        if len(queue) > mQueue:
+            mQueue = len(queue)
     print "error, queue ended without finding answer"
     return root
 
@@ -325,6 +344,7 @@ if(int(userInput) == 1):
     print "1, Uniform Cost Search: " + repr(time1)
     count = getDepth(x)
     print "Solution Depth = " + repr(count)
+    print "Max Queue Size = " + repr(x.mQueue)
     path = getPath(x)
     print "Solution Path: "
     for item in path:
@@ -340,6 +360,7 @@ elif(int(userInput) == 2):
     print "2, Misplaced Tiles Heuristic A*: " + repr(time2)
     count = getDepth(x)
     print "Solution Depth = " + repr(count)
+    print "Max Queue Size = " + repr(x.mQueue)
     path = getPath(x)
     print "Solution Path: "
     for item in path:
@@ -356,6 +377,7 @@ elif(int(userInput) == 3):
     count = getDepth(x)
     print "Solution Depth = " + repr(count)
     path = getPath(x)
+    print "Max Queue Size = " + repr(x.mQueue)
     print "Solution Path: "
     for item in path:
         item.data.display()
@@ -384,6 +406,7 @@ else:
     print "3, Manhattan Distance Heuristic A*: " + repr(time3)
 
     print "Solution Depth = " + repr(getDepth(z))
+    print "Max Queue Size = " + repr(z.mQueue)
     path = getPath(z)
     print "Solution Path: "
     for x in path:

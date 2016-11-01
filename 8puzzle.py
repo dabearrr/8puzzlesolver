@@ -109,7 +109,24 @@ class Board:
         self.state[loc.y][loc.x] = self.state[loc.y][loc.x - 1]
         self.state[loc.y ][loc.x - 1] = 0
         self.zeroloc = Pair(self.zeroloc.x - 1, self.zeroloc.y)
-
+    def isSolvable(self):
+	temp = []
+	inversions = 0
+	for i in range(0, len(self.state)):
+	    for j in range(0, len(self.state)):
+	        temp.append(self.state[i][j])
+	for x in temp:
+	    print x,
+	print
+	for i in range(0, len(temp)):
+	    for j in range(i+1, len(temp)):
+	        if(temp[i] > temp[j] and  temp[i] != 0 and temp [j] != 0):
+		    inversions += 1
+	print inversions
+	if inversions & 1:
+	    return False
+	else:
+	    return True
 
 #holds the Board object internally, used as a helper to the Board, performs ops on it
 #weapper class that calls board's internal functions, with some extra
@@ -343,6 +360,9 @@ userBoard = Board(startBoard)
 goalBoard = Board(endBoard)
 
 userPuzzle = Puzzle(userBoard)
+
+if userBoard.isSolvable() == False:
+    raise "Error: Puzzle not solvable!"
 
 if(int(userInput) == 1):
     start1 = time.time()

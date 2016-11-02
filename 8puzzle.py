@@ -110,23 +110,23 @@ class Board:
         self.state[loc.y ][loc.x - 1] = 0
         self.zeroloc = Pair(self.zeroloc.x - 1, self.zeroloc.y)
     def isSolvable(self):
-	temp = []
-	inversions = 0
-	for i in range(0, len(self.state)):
-	    for j in range(0, len(self.state)):
-	        temp.append(self.state[i][j])
-	for x in temp:
-	    print x,
-	print
-	for i in range(0, len(temp)):
-	    for j in range(i+1, len(temp)):
-	        if(temp[i] > temp[j] and  temp[i] != 0 and temp [j] != 0):
-		    inversions += 1
-	print inversions
-	if inversions & 1:
-	    return False
-	else:
-	    return True
+        temp = []
+        inversions = 0
+        for i in range(0, len(self.state)):
+            for j in range(0, len(self.state)):
+                temp.append(self.state[i][j])
+        for x in temp:
+            print x,
+        print
+        for i in range(0, len(temp)):
+            for j in range(i+1, len(temp)):
+                if(temp[i] > temp[j] and  temp[i] != 0 and temp [j] != 0):
+                    inversions += 1
+        #print inversions
+        if inversions & 1:
+            return False
+        else:
+            return True
 
 #holds the Board object internally, used as a helper to the Board, performs ops on it
 #weapper class that calls board's internal functions, with some extra
@@ -184,133 +184,59 @@ def getPath(node):
     path.reverse()
     return path
 
-#finds the solution using uniform cost search -- effectively bfs in this
-def findSolutionUCS(puzzle, goal):
+def findSolution(puzzle, goal, type):
+    if type != 1 and type != 2 and type != 3:
+        return -1
     # create the root
     root = TreeNode(puzzle)
     queue = []
     queue.append(root)
+
+    seen = []
 
     # maxQueue holder
     mQueue = 0
     tQueue = 0
 
     while queue:
-        print "Expanding Node: "
-        queue[0].data.display()
-        if(queue[0].data.isGoal(goal)):
-            print "Goal Has Been Found!"
-            queue[0].mQueue = mQueue
-	    queue[0].tQueue = tQueue
-            return queue[0]
+        if queue[0] in seen:
+            queue.pop(0)
+        else:
+            print "Expanding Node: "
+            queue[0].data.display()
+            if(queue[0].data.isGoal(goal)):
+                print "Goal Has Been Found!"
+                queue[0].mQueue = mQueue
+                queue[0].tQueue = tQueue
+                return queue[0]
 
-        #get all legal moves
-        legalMoves = queue[0].data.getLegalMoves()
+            #get all legal moves
+            legalMoves = queue[0].data.getLegalMoves()
 
-        #add all legal moves of the node to be it's children
-        for item in legalMoves:
-            print item,
-            queue[0].append(TreeNode(Puzzle(Board(copy.deepcopy(queue[0].data.board.state)))))
-            queue[0].children[-1].data.move(item)
-            queue[0].children[-1].parent = queue[0]
-        print
-        #add all children to the queue
-        for node in queue[0].children:
-            queue.append(node)
-            node.data.display()
-	    tQueue += 1
-        queue.pop(0)
-        if len(queue) > mQueue:
-            mQueue = len(queue)
+            #add all legal moves of the node to be it's children
+            for item in legalMoves:
+                print item,
+                queue[0].append(TreeNode(Puzzle(Board(copy.deepcopy(queue[0].data.board.state)))))
+                queue[0].children[-1].data.move(item)
+                queue[0].children[-1].parent = queue[0]
+                if type == 2:
+                    queue[0].children[-1].hVal = (queue[0].children[-1].data.getMisplacedTiles(goal))
+                elif type == 3:
+                    queue[0].children[-1].hVal = (queue[0].children[-1].data.getManhattanDistance(goal))
+            print
 
-    print "error, queue ended without finding answer"
-    return root
+            #add all children to the queue
+            for node in queue[0].children:
+                queue.append(node)
+                node.data.display()
+            tQueue += 1
+            seen.append(queue.pop(0))
+            if type == 2 or type == 3:
+                queue = sorted(queue, key=lambda treeNode: treeNode.hVal)
+            if len(queue) > mQueue:
+                mQueue = len(queue)
 
-#Solution making use of Misplaced Tiles Heuristic in A*
-def findSolutionMTH(puzzle, goal):
-    # create the root
-    root = TreeNode(puzzle)
-    queue = []
-    queue.append(root)
-
-    #maxQueue holder
-    mQueue = 0
-    tQueue = 0
-
-    while queue:
-        print "Expanding Node: "
-        queue[0].data.display()
-        if (queue[0].data.isGoal(goal)):
-            print "Goal Has Been Found!"
-            queue[0].mQueue = mQueue
-	    queue[0].tQueue = tQueue
-            return queue[0]
-
-        # get all legal moves
-        legalMoves = queue[0].data.getLegalMoves()
-
-        # add all legal moves of the node to be it's children
-        # assign heuristic values, parent
-        for item in legalMoves:
-            print item,
-            queue[0].append(TreeNode(Puzzle(Board(copy.deepcopy(queue[0].data.board.state)))))
-            queue[0].children[-1].data.move(item)
-            queue[0].children[-1].hVal = (queue[0].children[-1].data.getMisplacedTiles(goal))
-            queue[0].children[-1].parent = queue[0]
-        print
-        # add all children to the queue
-        for node in queue[0].children:
-            queue.append(node)
-            node.data.display()
-	    tQueue += 1
-        queue.pop(0)
-        queue = sorted(queue, key=lambda treeNode: treeNode.hVal)
-        if len(queue) > mQueue:
-            mQueue = len(queue)
-    print "error, queue ended without finding answer"
-    return root
-
-#Solution making use of Manhattan Distance Heuristic in A*
-def findSolutionMDH(puzzle, goal):
-    # create the root
-    root = TreeNode(puzzle)
-    queue = []
-    queue.append(root)
-
-    # maxQueue holder
-    mQueue = 0
-    tQueue = 0
-
-    while queue:
-        print "Expanding Node: "
-        queue[0].data.display()
-        if (queue[0].data.isGoal(goal)):
-            print "Goal Has Been Found!"
-            queue[0].mQueue = mQueue
-	    queue[0].tQueue = tQueue
-            return queue[0]
-
-        # get all legal moves
-        legalMoves = queue[0].data.getLegalMoves()
-
-        # add all legal moves of the node to be it's children
-        # assign heuristic values, parent
-        for item in legalMoves:
-            print item,
-            queue[0].append(TreeNode(Puzzle(Board(copy.deepcopy(queue[0].data.board.state)))))
-            queue[0].children[-1].data.move(item)
-            queue[0].children[-1].hVal = (queue[0].children[-1].data.getManhattanDistance(goal))
-            queue[0].children[-1].parent = queue[0]
-        print
-        # add all children to the queue
-        for node in queue[0].children:
-            queue.append(node)
-            node.data.display()
-	    tQueue += 1
-        queue.pop(0)
-        queue = sorted(queue, key=lambda treeNode: treeNode.hVal)
-        if len(queue) > mQueue:
-            mQueue = len(queue)
+    #should not be reached
     print "error, queue ended without finding answer"
     return root
 
@@ -368,7 +294,7 @@ while True:
 
     if(int(userInput) == 1):
         start1 = time.time()
-        x = findSolutionUCS(userPuzzle, goalBoard)
+        x = findSolution(userPuzzle, goalBoard, 1)
         end1 = time.time()
         time1 = end1 - start1
 
@@ -385,7 +311,7 @@ while True:
         print "Initial Misplaced Tiles is: " + repr(userPuzzle.getMisplacedTiles(goalBoard))
 
         start2 = time.time()
-        x = findSolutionMTH(userPuzzle, goalBoard)
+        x = findSolution(userPuzzle, goalBoard, 2)
         end2 = time.time()
         time2 = end2 - start2
 
@@ -402,7 +328,7 @@ while True:
         print "Initial Manhattan Distance is: " + repr(userPuzzle.getManhattanDistance(goalBoard))
 
         start3 = time.time()
-        x = findSolutionMDH(userPuzzle, goalBoard)
+        x = findSolution(userPuzzle, goalBoard, 3)
         end3 = time.time()
         time3 = end3 - start3
 
@@ -423,17 +349,17 @@ while True:
         print "Initial Misplaced Tiles is: " + repr(userPuzzle.getMisplacedTiles(goalBoard))
 
         start1 = time.time()
-        x = findSolutionUCS(userPuzzle, goalBoard)
+        x = findSolution(userPuzzle, goalBoard, 1)
         end1 = time.time()
         time1 = end1 - start1
 
         start2 = time.time()
-        y = findSolutionMTH(userPuzzle, goalBoard)
+        y = findSolution(userPuzzle, goalBoard, 2)
         end2 = time.time()
         time2 = end2 - start2
 
         start3 = time.time()
-        z = findSolutionMDH(userPuzzle, goalBoard)
+        z = findSolution(userPuzzle, goalBoard, 3)
         end3 = time.time()
         time3 = end3 - start3
 

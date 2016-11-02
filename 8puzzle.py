@@ -109,7 +109,24 @@ class Board:
         self.state[loc.y][loc.x] = self.state[loc.y][loc.x - 1]
         self.state[loc.y ][loc.x - 1] = 0
         self.zeroloc = Pair(self.zeroloc.x - 1, self.zeroloc.y)
-
+    def isSolvable(self):
+	temp = []
+	inversions = 0
+	for i in range(0, len(self.state)):
+	    for j in range(0, len(self.state)):
+	        temp.append(self.state[i][j])
+	for x in temp:
+	    print x,
+	print
+	for i in range(0, len(temp)):
+	    for j in range(i+1, len(temp)):
+	        if(temp[i] > temp[j] and  temp[i] != 0 and temp [j] != 0):
+		    inversions += 1
+	print inversions
+	if inversions & 1:
+	    return False
+	else:
+	    return True
 
 #holds the Board object internally, used as a helper to the Board, performs ops on it
 #weapper class that calls board's internal functions, with some extra
@@ -176,6 +193,7 @@ def findSolutionUCS(puzzle, goal):
 
     # maxQueue holder
     mQueue = 0
+    tQueue = 0
 
     while queue:
         print "Expanding Node: "
@@ -183,7 +201,9 @@ def findSolutionUCS(puzzle, goal):
         if(queue[0].data.isGoal(goal)):
             print "Goal Has Been Found!"
             queue[0].mQueue = mQueue
+	    queue[0].tQueue = tQueue
             return queue[0]
+
         #get all legal moves
         legalMoves = queue[0].data.getLegalMoves()
 
@@ -198,6 +218,7 @@ def findSolutionUCS(puzzle, goal):
         for node in queue[0].children:
             queue.append(node)
             node.data.display()
+	    tQueue += 1
         queue.pop(0)
         if len(queue) > mQueue:
             mQueue = len(queue)
@@ -214,6 +235,7 @@ def findSolutionMTH(puzzle, goal):
 
     #maxQueue holder
     mQueue = 0
+    tQueue = 0
 
     while queue:
         print "Expanding Node: "
@@ -221,6 +243,7 @@ def findSolutionMTH(puzzle, goal):
         if (queue[0].data.isGoal(goal)):
             print "Goal Has Been Found!"
             queue[0].mQueue = mQueue
+	    queue[0].tQueue = tQueue
             return queue[0]
 
         # get all legal moves
@@ -239,6 +262,7 @@ def findSolutionMTH(puzzle, goal):
         for node in queue[0].children:
             queue.append(node)
             node.data.display()
+	    tQueue += 1
         queue.pop(0)
         queue = sorted(queue, key=lambda treeNode: treeNode.hVal)
         if len(queue) > mQueue:
@@ -255,6 +279,7 @@ def findSolutionMDH(puzzle, goal):
 
     # maxQueue holder
     mQueue = 0
+    tQueue = 0
 
     while queue:
         print "Expanding Node: "
@@ -262,6 +287,7 @@ def findSolutionMDH(puzzle, goal):
         if (queue[0].data.isGoal(goal)):
             print "Goal Has Been Found!"
             queue[0].mQueue = mQueue
+	    queue[0].tQueue = tQueue
             return queue[0]
 
         # get all legal moves
@@ -280,6 +306,7 @@ def findSolutionMDH(puzzle, goal):
         for node in queue[0].children:
             queue.append(node)
             node.data.display()
+	    tQueue += 1
         queue.pop(0)
         queue = sorted(queue, key=lambda treeNode: treeNode.hVal)
         if len(queue) > mQueue:
@@ -287,129 +314,133 @@ def findSolutionMDH(puzzle, goal):
     print "error, queue ended without finding answer"
     return root
 
-while 1:
-    #take in input
-    userInput = raw_input("Welcome to Raymond Farias's puzzle solver: Enter 1 for the default puzzle, or 2 to enter your own. (-1 to exit)")
-    startBoard = []
-    endBoard = []
-    endBoard.append([1, 2, 3])
-    endBoard.append([4, 5, 6])
-    endBoard.append([7, 8, 0])
+#take in input
+userInput = raw_input("Welcome to Raymond Farias's puzzle solver: Enter 1 for the default puzzle, or 2 to enter your own.")
+startBoard = []
+endBoard = []
+endBoard.append([1, 2, 3])
+endBoard.append([4, 5, 6])
+endBoard.append([7, 8, 0])
 
-    if(int(userInput) == 1):
-        #make default board
-        # startBoard.append([1, 2, 3])
-        # startBoard.append([4, 0, 6])
-        # startBoard.append([7, 5, 8])
-        # startBoard = []
-        startBoard.append([4, 1, 3])
-        startBoard.append([0, 2, 6])
-        startBoard.append([7, 5, 8])
+if(int(userInput) == 1):
+    #make default board
+    # startBoard.append([1, 2, 3])
+    # startBoard.append([4, 0, 6])
+    # startBoard.append([7, 5, 8])
+    # startBoard = []
+    startBoard.append([4, 1, 3])
+    startBoard.append([0, 2, 6])
+    startBoard.append([7, 5, 8])
 
-    elif(int(userInput) == 2):
-        #take in user board
-        print("Enter your puzzle, enter a zero to represent the blank.")
-        userInput = raw_input("Enter your first row, use space between numbers")
-        tempList = map(int, userInput.split())
-        print tempList
-        startBoard.append(tempList)
-        userInput = raw_input("Enter your second row, use space between numbers")
-        tempList = map(int, userInput.split())
-        print tempList
-        startBoard.append(tempList)
-        userInput = raw_input("Enter your third row, use space between numbers")
-        tempList = map(int, userInput.split())
-        print tempList
-        startBoard.append(tempList)
+elif(int(userInput) == 2):
+    #take in user board
+    print("Enter your puzzle, enter a zero to represent the blank.")
+    userInput = raw_input("Enter your first row, use space between numbers")
+    tempList = map(int, userInput.split())
+    print tempList
+    startBoard.append(tempList)
+    userInput = raw_input("Enter your second row, use space between numbers")
+    tempList = map(int, userInput.split())
+    print tempList
+    startBoard.append(tempList)
+    userInput = raw_input("Enter your third row, use space between numbers")
+    tempList = map(int, userInput.split())
+    print tempList
+    startBoard.append(tempList)
 
-        tempBoard = Board(startBoard)
-        tempBoard.display()
-    else:
-        print ("Error, please enter a correct number.")
-        raise "InputError"
+    tempBoard = Board(startBoard)
+    tempBoard.display()
+else:
+    print ("Error, please enter a correct number.")
+    raise "InputError"
 
-    userInput = raw_input("1: Uniform Cost Search \n2: A* with Misplaced Tile H. \n3: A* with Manhattan Distance H.")
+userInput = raw_input("1: Uniform Cost Search \n2: A* with Misplaced Tile H. \n3: A* with Manhattan Distance H.")
 
-    userBoard = Board(startBoard)
-    goalBoard = Board(endBoard)
+userBoard = Board(startBoard)
+goalBoard = Board(endBoard)
 
-    userPuzzle = Puzzle(userBoard)
+userPuzzle = Puzzle(userBoard)
 
-    if(int(userInput) == 1):
-        start1 = time.time()
-        x = findSolutionUCS(userPuzzle, goalBoard)
-        end1 = time.time()
-        time1 = end1 - start1
+if userBoard.isSolvable() == False:
+    raise "Error: Puzzle not solvable!"
 
-        print "1, Uniform Cost Search: " + repr(time1)
-        count = getDepth(x)
-        print "Solution Depth = " + repr(count)
-        print "Max Queue Size = " + repr(x.mQueue)
-        path = getPath(x)
-        print "Solution Path: "
-        for item in path:
-            item.data.display()
-    elif(int(userInput) == 2):
-        print "Initial Misplaced Tiles is: " + repr(userPuzzle.getMisplacedTiles(goalBoard))
+if(int(userInput) == 1):
+    start1 = time.time()
+    x = findSolutionUCS(userPuzzle, goalBoard)
+    end1 = time.time()
+    time1 = end1 - start1
 
-        start2 = time.time()
-        x = findSolutionMTH(userPuzzle, goalBoard)
-        end2 = time.time()
-        time2 = end2 - start2
+    print "1, Uniform Cost Search: " + repr(time1)
+    count = getDepth(x)
+    print "Solution Depth = " + repr(count)
+    print "Max Queue Size = " + repr(x.mQueue)
+    print "Total Nodes = " + repr(x.tQueue)
+    path = getPath(x)
+    print "Solution Path: "
+    for item in path:
+        item.data.display()
+elif(int(userInput) == 2):
+    print "Initial Misplaced Tiles is: " + repr(userPuzzle.getMisplacedTiles(goalBoard))
 
-        print "2, Misplaced Tiles Heuristic A*: " + repr(time2)
-        count = getDepth(x)
-        print "Solution Depth = " + repr(count)
-        print "Max Queue Size = " + repr(x.mQueue)
-        path = getPath(x)
-        print "Solution Path: "
-        for item in path:
-            item.data.display()
-    elif(int(userInput) == 3):
-        print "Initial Manhattan Distance is: " + repr(userPuzzle.getManhattanDistance(goalBoard))
+    start2 = time.time()
+    x = findSolutionMTH(userPuzzle, goalBoard)
+    end2 = time.time()
+    time2 = end2 - start2
 
-        start3 = time.time()
-        x = findSolutionMDH(userPuzzle, goalBoard)
-        end3 = time.time()
-        time3 = end3 - start3
+    print "2, Misplaced Tiles Heuristic A*: " + repr(time2)
+    count = getDepth(x)
+    print "Solution Depth = " + repr(count)
+    print "Max Queue Size = " + repr(x.mQueue)
+    print "Total Nodes = " + repr(x.tQueue)
+    path = getPath(x)
+    print "Solution Path: "
+    for item in path:
+        item.data.display()
+elif(int(userInput) == 3):
+    print "Initial Manhattan Distance is: " + repr(userPuzzle.getManhattanDistance(goalBoard))
 
-        print "3, Manhattan Distance Heuristic A*: " + repr(time3)
-        count = getDepth(x)
-        print "Solution Depth = " + repr(count)
-        path = getPath(x)
-        print "Max Queue Size = " + repr(x.mQueue)
-        print "Solution Path: "
-        for item in path:
-            item.data.display()
-    elif (int(userInput) == -1):
-        raise "UserExit"
-    else:
-        #try solution
-        print "Initial Manhattan Distance is: " + repr(userPuzzle.getManhattanDistance(goalBoard))
-        print "Initial Misplaced Tiles is: " + repr(userPuzzle.getMisplacedTiles(goalBoard))
+    start3 = time.time()
+    x = findSolutionMDH(userPuzzle, goalBoard)
+    end3 = time.time()
+    time3 = end3 - start3
 
-        start1 = time.time()
-        x = findSolutionUCS(userPuzzle, goalBoard)
-        end1 = time.time()
-        time1 = end1 - start1
+    print "3, Manhattan Distance Heuristic A*: " + repr(time3)
+    count = getDepth(x)
+    print "Solution Depth = " + repr(count)
+    path = getPath(x)
+    print "Max Queue Size = " + repr(x.mQueue)
+    print "Total Nodes = " + repr(x.tQueue)
+    print "Solution Path: "
+    for item in path:
+        item.data.display()
+else:
+    #try solution
+    print "Initial Manhattan Distance is: " + repr(userPuzzle.getManhattanDistance(goalBoard))
+    print "Initial Misplaced Tiles is: " + repr(userPuzzle.getMisplacedTiles(goalBoard))
 
-        start2 = time.time()
-        y = findSolutionMTH(userPuzzle, goalBoard)
-        end2 = time.time()
-        time2 = end2 - start2
+    start1 = time.time()
+    x = findSolutionUCS(userPuzzle, goalBoard)
+    end1 = time.time()
+    time1 = end1 - start1
 
-        start3 = time.time()
-        z = findSolutionMDH(userPuzzle, goalBoard)
-        end3 = time.time()
-        time3 = end3 - start3
+    start2 = time.time()
+    y = findSolutionMTH(userPuzzle, goalBoard)
+    end2 = time.time()
+    time2 = end2 - start2
 
-        print "1, Uniform Cost Search: " + repr(time1)
-        print "2, Misplaced Tiles Heuristic A*: " + repr(time2)
-        print "3, Manhattan Distance Heuristic A*: " + repr(time3)
+    start3 = time.time()
+    z = findSolutionMDH(userPuzzle, goalBoard)
+    end3 = time.time()
+    time3 = end3 - start3
 
-        print "Solution Depth = " + repr(getDepth(z))
-        print "Max Queue Size = " + repr(z.mQueue)
-        path = getPath(z)
-        print "Solution Path: "
-        for x in path:
-            x.data.display()
+    print "1, Uniform Cost Search: " + repr(time1)
+    print "2, Misplaced Tiles Heuristic A*: " + repr(time2)
+    print "3, Manhattan Distance Heuristic A*: " + repr(time3)
+
+    print "Solution Depth = " + repr(getDepth(z))
+    print "Max Queue Size = " + repr(z.mQueue)
+    print "Total Nodes = " + repr(z.tQueue)
+    path = getPath(z)
+    print "Solution Path: "
+    for x in path:
+        x.data.display()

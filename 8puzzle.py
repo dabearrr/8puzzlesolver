@@ -185,13 +185,16 @@ def getPath(node):
     return path
 
 def findSolution(puzzle, goal, type):
+    #1 = UCS, 2 = MTH, 3 = MDH
     if type != 1 and type != 2 and type != 3:
         return -1
+
     # create the root
     root = TreeNode(puzzle)
     queue = []
     queue.append(root)
 
+    #seen holds the nodes we have seen already
     seen = []
 
     # maxQueue holder
@@ -277,7 +280,7 @@ while True:
         tempBoard = Board(startBoard)
         tempBoard.display()
     elif(int(userInput) == -1):
-        raise "UserExit"
+        raise SystemExit
     else:
         print ("Error, please enter a correct number.")
         raise "InputError"
@@ -342,7 +345,7 @@ while True:
         for item in path:
             item.data.display()
     elif(int(userInput) == -1):
-        raise "UserExit"
+        raise SystemExit
     else:
         #try solution
         print "Initial Manhattan Distance is: " + repr(userPuzzle.getManhattanDistance(goalBoard))

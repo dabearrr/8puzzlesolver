@@ -237,6 +237,7 @@ def findSolution(puzzle, goal, type):
             legalMoves = queue[0].data.getLegalMoves()
 
             #add all legal moves of the node to be it's children
+            queueAdded = False
             for item in legalMoves:
                 print item,
                 tempNode = TreeNode(Puzzle(Board(copy.deepcopy(queue[0].data.board.state))))
@@ -247,26 +248,29 @@ def findSolution(puzzle, goal, type):
                 elif type == 3:
                     tempNode.hVal = (tempNode.data.getManhattanDistance(goal))
                 if not prev.data.board.isEqual(tempNode.data.board):
-                    queue[0].append(tempNode)
+                    inSeen = False
+                    for x in seen:
+                        if x.data.board.isEqual(tempNode.data.board):
+                            inSeen = True
+                            break
+                    if not inSeen:
+                        #add new node to children
+                        queue[0].append(tempNode)
+                        #add new node to queue as well
+                        queue.append(tempNode)
+                        tempNode.data.display()
+                        queueAdded = True
             print
 
-            #add all children to the queue
-            queueAdded = False
-            for node in queue[0].children:
-                inSeen = False
-                for x in seen:
-                    if x.data.board.isEqual(node.data.board):
-                        inSeen = True
-                        break
-                if not inSeen:
-                    queue.append(node)
-                    node.data.display()
-                    queueAdded = True
+            #note that our node has been fully expanded, remove from queue
             tQueue += 1
             prev = queue[0]
             seen.append(queue.pop(0))
+
+            #re-sort by heuristic
             if (type == 2 or type == 3) and queueAdded:
                 queue = sorted(queue, key=lambda treeNode: treeNode.hVal)
+            #save if max queue is very large
             if len(queue) > mQueue:
                 mQueue = len(queue)
 

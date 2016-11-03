@@ -1,5 +1,6 @@
 import copy
 import time
+import heapq
 
 #for creating the tree itself
 #TreeNode class has data, children array, parent, and the heuristic value used to compare in the A* algs
@@ -10,12 +11,12 @@ class TreeNode:
         self.parent = 0
         self.hVal = 0
         self.depth = 0
+        self.tQueue = 0
         self.mQueue = 0
     def append(self, newNode):
         self.children.append(newNode)
-
     def __lt__(self, other):
-        return self.hVal > other.hVal
+        return self.hVal < other.hVal
 
 #Pair class, used as a helper for later functions
 class Pair:
@@ -61,6 +62,11 @@ class Board:
                 if self.state[i][j] != boardB.state[i][j]:
                     return False
         return True
+    def quickIsEqual(self, boardB):
+        if self.zeroloc.x == boardB.zeroloc.x and self.zeroloc.y == boardB.zeroloc.y:
+            return True
+        else:
+            return False
     def getMisplacedTiles(self, boardB):
         sumMisplacedTiles = 0
         for i in range(0, len(boardB.state)):
@@ -195,11 +201,8 @@ def findSolution(puzzle, goal, type):
     queue = []
     queue.append(root)
 
-    prev = 0
-
-    # maxQueue holder
-    mQueue = 0
     tQueue = 0
+    mQueue = 0
 
     while queue:
         #node that is being expanded
@@ -241,7 +244,7 @@ def findSolution(puzzle, goal, type):
             #check to see if the node is a return to the parent / grandparent state
             if tQueue >= 1:
                 # must check to see that it is not returning to the grandpa move
-                if not tempNode.data.board.isEqual(((tempNode.parent).parent).data.board) and not tempNode.data.board.isEqual((tempNode.parent).data.board) and not prev.data.board.isEqual(tempNode.data.board):
+                if not tempNode.data.board.quickIsEqual(((tempNode.parent).parent).data.board):
                     #add node to the queue
                     queue.append(tempNode)
                     hasAdded = True
@@ -256,7 +259,7 @@ def findSolution(puzzle, goal, type):
         tQueue += 1
 
         #note the last popped node
-        prev = queue.pop(0)
+        queue.pop(0)
 
         #sort the queue
         if hasAdded:
@@ -265,6 +268,85 @@ def findSolution(puzzle, goal, type):
         #check if new max queue size
         if len(queue) > mQueue:
             mQueue = len(queue)
+
+    #should not be reached
+    print "error, queue ended without finding answer"
+    return root
+
+def findSolution2(puzzle, goal, type):
+    #1 = UCS, 2 = MTH, 3 = MDH
+    if type != 1 and type != 2 and type != 3:
+        return -1
+
+    # create the root
+    root = TreeNode(puzzle)
+    queue = []
+    heapq.heappush(queue, root)
+
+    tQueue = 0
+    mQueue = 0
+
+    while queue:
+        #node that is being expanded
+        # print "Expanding Node: "
+        # queue[0].data.display()
+
+        #found the goal state
+        if(queue[0].data.isGoal(goal)):
+            print "Goal Has Been Found!"
+            queue[0].mQueue = mQueue
+            queue[0].tQueue = tQueue
+            return queue[0]
+
+        #get all legal moves
+        legalMoves = queue[0].data.getLegalMoves()
+
+        #add all legal moves of the node to be it's children
+        for item in legalMoves:
+            # print item
+
+            #create the node itself, takes the board state, performs the move, assigns it parent, depth, hVal
+            tempNode = TreeNode(Puzzle(Board(copy.deepcopy(queue[0].data.board.state))))
+            tempNode.data.move(item)
+            tempNode.parent = queue[0]
+            tempNode.depth = queue[0].depth + 1
+            if type == 1:
+                tempNode.hVal = tempNode.depth
+            elif type == 2:
+                tempNode.hVal = tempNode.data.getMisplacedTiles(goal) + tempNode.depth
+            elif type == 3:
+                tempNode.hVal = tempNode.data.getManhattanDistance(goal)
+
+            # Designate the new node as a child of its parent
+            queue[0].append(tempNode)
+
+            #check to see if the node is a return to the parent / grandparent state
+            if tQueue >= 1:
+                # must check to see that it is not returning to the grandpa move
+                if not tempNode.data.board.isEqual(((tempNode.parent).parent).data.board) and not tempNode.data.board.isEqual((tempNode.parent).data.board) and not prev.data.board.isEqual(tempNode.data.board):
+                    #add node to the queue
+                    heapq.heappush(queue, tempNode)
+                    # print "adding"
+                    # tempNode.data.display()
+            else:
+                # print "adding"
+                heapq.heappush(queue, tempNode)
+                # hasAdded = True
+                # tempNode.data.display()
+        #print
+
+        #note that another node has been expanded
+        tQueue += 1
+
+        #note the last popped node
+        prev = heapq.heappop(queue)
+
+        #check if new max queue size
+        if len(queue) > mQueue:
+            mQueue = len(queue)
+
+        # if tQueue > 5:
+        #     raise "exit"
 
     #should not be reached
     print "error, queue ended without finding answer"
@@ -329,6 +411,9 @@ while True:
 
     if userBoard.isSolvable() == False:
         raise "Error: Puzzle not solvable!"
+
+    mQueue = 0
+    tQueue = 0
 
     if(int(userInput) == 1):
         start1 = time.time()

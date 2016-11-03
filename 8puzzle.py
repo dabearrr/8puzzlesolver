@@ -250,7 +250,7 @@ def findSolution(puzzle, goal, type):
                 queue.append(tempNode)
                 hasAdded = True
                 #tempNode.data.display()
-        print
+        #print
 
         #note that another node has been expanded
         tQueue += 1

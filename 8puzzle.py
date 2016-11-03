@@ -310,6 +310,10 @@ while True:
         startBoard.append([8, 1, 3])
         startBoard.append([4, 0, 2])
         startBoard.append([7, 6, 5])
+    elif (int(userInput) == -3):
+        startBoard.append([8, 6, 7])
+        startBoard.append([2, 5, 4])
+        startBoard.append([3, 0, 1])
     elif(int(userInput) == -1):
         raise SystemExit
     else:

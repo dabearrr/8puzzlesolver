@@ -207,12 +207,12 @@ def findSolution(puzzle, goal, type):
     while queue:
         #This section checks if we have already gone through this state before, avoids loops
         inSeen = False
-        if tQueue > 5:
+        if tQueue > 150:
             for x in seen:
                 if x.data.board.isEqual(queue[0].data.board):
                     inSeen = True
                     break
-        elif tQueue == 0:
+        if tQueue == 0:
             inSeen = False
 
         if inSeen:
@@ -253,7 +253,12 @@ def findSolution(puzzle, goal, type):
             #add all children to the queue
             queueAdded = False
             for node in queue[0].children:
-                if not prev.data.board.isEqual(node.data.board):
+                inSeen = False
+                for x in seen:
+                    if x.data.board.isEqual(node.data.board):
+                        inSeen = True
+                        break
+                if not inSeen:
                     queue.append(node)
                     node.data.display()
                     queueAdded = True

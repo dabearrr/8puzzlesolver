@@ -185,72 +185,6 @@ def getPath(node):
     path.reverse()
     return path
 
-def findSolution2(puzzle, goal, type):
-    #1 = UCS, 2 = MTH, 3 = MDH
-    if type != 1 and type != 2 and type != 3:
-        return -1
-
-    # create the root
-    root = TreeNode(puzzle)
-    queue = []
-    queue.append(root)
-
-    prev = 0
-
-    # maxQueue holder
-    mQueue = 0
-    tQueue = 0
-
-    while queue:
-        print "Expanding Node: "
-        queue[0].data.display()
-        if(queue[0].data.isGoal(goal)):
-            print "Goal Has Been Found!"
-            queue[0].mQueue = mQueue
-            queue[0].tQueue = tQueue
-            return queue[0]
-
-        #get all legal moves
-        legalMoves = queue[0].data.getLegalMoves()
-
-        #add all legal moves of the node to be it's children
-        for item in legalMoves:
-            print item,
-            queue[0].append(TreeNode(Puzzle(Board(copy.deepcopy(queue[0].data.board.state)))))
-            queue[0].children[-1].data.move(item)
-            queue[0].children[-1].parent = queue[0]
-            if type == 2:
-                queue[0].children[-1].hVal = (queue[0].children[-1].data.getMisplacedTiles(goal))
-            elif type == 3:
-                queue[0].children[-1].hVal = (queue[0].children[-1].data.getManhattanDistance(goal))
-        print
-
-        #add all children to the queue
-        hasAdded = False
-        for node in queue[0].children:
-            if tQueue >= 1:
-                #must check to see that it is not returning to the grandpa move
-                if not node.data.board.isEqual(((node.parent).parent).data.board) and not prev.data.board.isEqual(node.data.board):
-                    queue.append(node)
-                    node.data.display()
-                    hasAdded = True
-            else:
-                queue.append(node)
-                node.data.display()
-                hasAdded = True
-        tQueue += 1
-        prev = queue.pop(0)
-        if hasAdded and (type == 2 or type == 3):
-            queue = sorted(queue, key=lambda treeNode: treeNode.hVal)
-        if len(queue) > mQueue:
-            mQueue = len(queue)
-        # if tQueue > 5:
-        #     raise "error"
-
-    #should not be reached
-    print "error, queue ended without finding answer"
-    return root
-
 def findSolution(puzzle, goal, type):
     #1 = UCS, 2 = MTH, 3 = MDH
     if type != 1 and type != 2 and type != 3:
@@ -268,8 +202,11 @@ def findSolution(puzzle, goal, type):
     tQueue = 0
 
     while queue:
-        print "Expanding Node: "
-        queue[0].data.display()
+        #node that is being expanded
+        # print "Expanding Node: "
+        # queue[0].data.display()
+
+        #found the goal state
         if(queue[0].data.isGoal(goal)):
             print "Goal Has Been Found!"
             queue[0].mQueue = mQueue
@@ -279,40 +216,55 @@ def findSolution(puzzle, goal, type):
         #get all legal moves
         legalMoves = queue[0].data.getLegalMoves()
 
-        #add all legal moves of the node to be it's children
+        #added check to see if we need to sort
         hasAdded = False
+
+        #add all legal moves of the node to be it's children
         for item in legalMoves:
-            print item,
+            #print item,
+
+            #create the node itself, takes the board state, performs the move, assigns it parent, depth, hVal
             tempNode = TreeNode(Puzzle(Board(copy.deepcopy(queue[0].data.board.state))))
             tempNode.data.move(item)
             tempNode.parent = queue[0]
             tempNode.depth = queue[0].depth + 1
-            if type == 2:
+            if type == 1:
+                tempNode.hVal = tempNode.depth
+            elif type == 2:
                 tempNode.hVal = tempNode.data.getMisplacedTiles(goal) + tempNode.depth
             elif type == 3:
                 tempNode.hVal = tempNode.data.getManhattanDistance(goal) + tempNode.depth
-            elif type == 1:
-                tempNode.hVal = tempNode.depth
+
+            # Designate the new node as a child of its parent
             queue[0].append(tempNode)
+
+            #check to see if the node is a return to the parent / grandparent state
             if tQueue >= 1:
                 # must check to see that it is not returning to the grandpa move
                 if not tempNode.data.board.isEqual(((tempNode.parent).parent).data.board) and not tempNode.data.board.isEqual((tempNode.parent).data.board) and not prev.data.board.isEqual(tempNode.data.board):
+                    #add node to the queue
                     queue.append(tempNode)
-                    tempNode.data.display()
                     hasAdded = True
+                    #tempNode.data.display()
             else:
                 queue.append(tempNode)
-                tempNode.data.display()
                 hasAdded = True
+                #tempNode.data.display()
         print
+
+        #note that another node has been expanded
         tQueue += 1
+
+        #note the last popped node
         prev = queue.pop(0)
+
+        #sort the queue
         if hasAdded:
             queue = sorted(queue, key=lambda treeNode: treeNode.hVal)
+
+        #check if new max queue size
         if len(queue) > mQueue:
             mQueue = len(queue)
-        # if tQueue > 5:
-        #     raise "error"
 
     #should not be reached
     print "error, queue ended without finding answer"

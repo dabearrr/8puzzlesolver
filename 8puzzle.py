@@ -196,6 +196,8 @@ def findSolution(puzzle, goal, type):
 
     #seen holds the nodes we have seen already
     seen = []
+
+    #prev is the last node seen, dont want to get stuck in a cycle
     prev = root
 
     # maxQueue holder
@@ -203,8 +205,9 @@ def findSolution(puzzle, goal, type):
     tQueue = 0
 
     while queue:
+        #This section checks if we have already gone through this state before, avoids loops
         inSeen = False
-        if tQueue > 500:
+        if tQueue > 5:
             for x in seen:
                 if x.data.board.isEqual(queue[0].data.board):
                     inSeen = True
@@ -221,6 +224,7 @@ def findSolution(puzzle, goal, type):
             queue.pop(0)
             print "skip"
         else:
+            #begin the main part of the search here
             print "Expanding Node: "
             queue[0].data.display()
             if(queue[0].data.isGoal(goal)):

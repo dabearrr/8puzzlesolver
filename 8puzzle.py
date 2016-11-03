@@ -196,6 +196,88 @@ def findSolution(puzzle, goal, type):
 
     #seen holds the nodes we have seen already
     seen = []
+    prev = root
+
+    # maxQueue holder
+    mQueue = 0
+    tQueue = 0
+
+    while queue:
+        inSeen = False
+        if tQueue > 500:
+            for x in seen:
+                if x.data.board.isEqual(queue[0].data.board):
+                    inSeen = True
+                    break
+        elif tQueue == 0:
+            inSeen = False
+
+        if inSeen:
+            if (queue[0].data.isGoal(goal)):
+                print "Goal Has Been Found!"
+                queue[0].mQueue = mQueue
+                queue[0].tQueue = tQueue
+                return queue[0]
+            queue.pop(0)
+            print "skip"
+        else:
+            print "Expanding Node: "
+            queue[0].data.display()
+            if(queue[0].data.isGoal(goal)):
+                print "Goal Has Been Found!"
+                queue[0].mQueue = mQueue
+                queue[0].tQueue = tQueue
+                return queue[0]
+
+            #get all legal moves
+            legalMoves = queue[0].data.getLegalMoves()
+
+            #add all legal moves of the node to be it's children
+            for item in legalMoves:
+                print item,
+                tempNode = TreeNode(Puzzle(Board(copy.deepcopy(queue[0].data.board.state))))
+                tempNode.data.move(item)
+                tempNode.parent = queue[0]
+                if type == 2:
+                    tempNode.hVal = (tempNode.data.getMisplacedTiles(goal))
+                elif type == 3:
+                    tempNode.hVal = (tempNode.data.getManhattanDistance(goal))
+                if not prev.data.board.isEqual(tempNode.data.board):
+                    queue[0].append(tempNode)
+            print
+
+            #add all children to the queue
+            queueAdded = False
+            for node in queue[0].children:
+                if not prev.data.board.isEqual(node.data.board):
+                    queue.append(node)
+                    node.data.display()
+                    queueAdded = True
+            tQueue += 1
+            prev = queue[0]
+            seen.append(queue.pop(0))
+            if (type == 2 or type == 3) and queueAdded:
+                queue = sorted(queue, key=lambda treeNode: treeNode.hVal)
+            if len(queue) > mQueue:
+                mQueue = len(queue)
+
+    #should not be reached
+    print "error, queue ended without finding answer"
+    return root
+
+def findSolution2(puzzle, goal, type):
+    #1 = UCS, 2 = MTH, 3 = MDH
+    if type != 1 and type != 2 and type != 3:
+        return -1
+
+    # create the root
+    root = TreeNode(puzzle)
+    queue = []
+    queue.append(root)
+
+    #seen holds the nodes we have seen already
+    seen = []
+    prev = root
 
     # maxQueue holder
     mQueue = 0
@@ -204,6 +286,8 @@ def findSolution(puzzle, goal, type):
     while queue:
         if queue[0] in seen:
             queue.pop(0)
+        # if len(seen) > 20:
+        #     seen = seen[:5]
         else:
             print "Expanding Node: "
             queue[0].data.display()
@@ -233,6 +317,7 @@ def findSolution(puzzle, goal, type):
                 queue.append(node)
                 node.data.display()
             tQueue += 1
+            prev = queue[0].data
             seen.append(queue.pop(0))
             if type == 2 or type == 3:
                 queue = sorted(queue, key=lambda treeNode: treeNode.hVal)
@@ -279,6 +364,10 @@ while True:
 
         tempBoard = Board(startBoard)
         tempBoard.display()
+    elif(int(userInput) == -2):
+        startBoard.append([8, 1, 3])
+        startBoard.append([4, 0, 2])
+        startBoard.append([7, 6, 5])
     elif(int(userInput) == -1):
         raise SystemExit
     else:

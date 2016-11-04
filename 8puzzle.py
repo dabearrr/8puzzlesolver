@@ -192,91 +192,6 @@ def getPath(node):
     path.reverse()
     return path
 
-def findSolution2(puzzle, goal, type):
-     #1 = UCS, 2 = MTH, 3 = MDH
-     if type != 1 and type != 2 and type != 3:
-         return -1
-
-     # create the root
-     root = TreeNode(puzzle)
-     queue = []
-     heapq.heappush(queue, root)
-
-     tQueue = 0
-     mQueue = 0
-
-     while queue:
-         #node that is being expanded
-         # print "Expanding Node: "
-         # queue[0].data.display()
-
-         #found the goal state
-         if(queue[0].data.isGoal(goal)):
-             print "Goal Has Been Found!"
-             queue[0].mQueue = mQueue
-             queue[0].tQueue = tQueue
-             return queue[0]
-
-         #get all legal moves
-         legalMoves = queue[0].data.getLegalMoves()
-
-         #add all legal moves of the node to be it's children
-         for item in legalMoves:
-             # print item
-
-             #create the node itself, takes the board state, performs the move, assigns it parent, depth, hVal
-             tempNode = TreeNode(Puzzle(Board(copy.deepcopy(queue[0].data.board.state))))
-             tempNode.data.move(item)
-             tempNode.parent = queue[0]
-             tempNode.depth = queue[0].depth + 1
-             if type == 1:
-                 tempNode.hVal = tempNode.depth
-             elif type == 2:
-                 tempNode.hVal = tempNode.data.getMisplacedTiles(goal) + tempNode.depth
-             elif type == 3:
-                 tempNode.hVal = tempNode.data.getManhattanDistance(goal) + tempNode.depth
-
-             # Designate the new node as a child of its parent
-             queue[0].append(tempNode)
-
-             #check to see if the node is a return to the parent / grandparent state
-             if tQueue >= 1:
-                 # must check to see that it is not returning to the grandpa move
-                 if not tempNode.data.board.isEqual(((tempNode.parent).parent).data.board):
-                     #add node to the queue
-                     heapq.heappush(queue, tempNode)
-                     # print "adding"
-                     # tempNode.data.display()
-             else:
-                 # print "adding"
-                 heapq.heappush(queue, tempNode)
-                 # hasAdded = True
-                 # tempNode.data.display()
-         #print
-
-         #note that another node has been expanded
-         tQueue += 1
-
-         #note the last popped node
-         prev = heapq.heappop(queue)
-
-         # print "Round #" + repr(tQueue) + " Queue status:"
-         # for x in queue:
-         #     print x.hVal,
-         #     x.data.display()
-
-         #check if new max queue size
-         if len(queue) > mQueue:
-             mQueue = len(queue)
-             # heapq.heapify(queue)
-
-         # if tQueue > 8:
-         #     raise "exit"
-
-     #should not be Reached
-     print "error, queue ended without finding answer"
-     return root
-
 def findSolution(puzzle, goal, type):
     #1 = UCS, 2 = MTH, 3 = MDH
     if type != 1 and type != 2 and type != 3:
@@ -284,39 +199,35 @@ def findSolution(puzzle, goal, type):
 
     # create the root
     root = TreeNode(puzzle)
-    queue = []
-    queue.append(root)
+    heap = []
+    heapq.heappush(heap, root)
 
     tQueue = 0
     mQueue = 0
 
-    while queue:
+    while heap:
         #node that is being expanded
         # print "Expanding Node: "
         # queue[0].data.display()
 
         #found the goal state
-        if(queue[0].data.isGoal(goal)):
+        if(heap[0].data.isGoal(goal)):
             print "Goal Has Been Found!"
-            queue[0].mQueue = mQueue
-            queue[0].tQueue = tQueue
-            return queue[0]
+            heap[0].mQueue = mQueue
+            heap[0].tQueue = tQueue
+            return heap[0]
 
         #get all legal moves
-        legalMoves = queue[0].data.getLegalMoves()
-
-        #added check to see if we need to sort
-        hasAdded = False
+        legalMoves = heap[0].data.getLegalMoves()
 
         #add all legal moves of the node to be it's children
         for item in legalMoves:
-            #print item,
 
             #create the node itself, takes the board state, performs the move, assigns it parent, depth, hVal
-            tempNode = TreeNode(Puzzle(Board(copy.deepcopy(queue[0].data.board.state))))
+            tempNode = TreeNode(Puzzle(Board(copy.deepcopy(heap[0].data.board.state))))
             tempNode.data.move(item)
-            tempNode.parent = queue[0]
-            tempNode.depth = queue[0].depth + 1
+            tempNode.parent = heap[0]
+            tempNode.depth = heap[0].depth + 1
             if type == 1:
                 tempNode.hVal = tempNode.depth
             elif type == 2:
@@ -325,37 +236,28 @@ def findSolution(puzzle, goal, type):
                 tempNode.hVal = tempNode.data.getManhattanDistance(goal) + tempNode.depth
 
             # Designate the new node as a child of its parent
-            queue[0].append(tempNode)
+            heap[0].append(tempNode)
 
             #check to see if the node is a return to the parent / grandparent state
             if tQueue >= 1:
                 # must check to see that it is not returning to the grandpa move
-                if not tempNode.data.board.quickIsEqual(((tempNode.parent).parent).data.board):
+                if not tempNode.data.board.isEqual(((tempNode.parent).parent).data.board):
                     #add node to the queue
-                    queue.append(tempNode)
-                    hasAdded = True
-                    #tempNode.data.display()
+                    heapq.heappush(heap, tempNode)
             else:
-                queue.append(tempNode)
-                hasAdded = True
-                #tempNode.data.display()
-        #print
+                heapq.heappush(heap, tempNode)
 
         #note that another node has been expanded
         tQueue += 1
 
         #note the last popped node
-        queue.pop(0)
-
-        #sort the queue
-        if hasAdded:
-            queue = sorted(queue, key=lambda treeNode: treeNode.hVal)
+        heapq.heappop(heap)
 
         #check if new max queue size
-        if len(queue) > mQueue:
-            mQueue = len(queue)
+        if len(heap) > mQueue:
+            mQueue = len(heap)
 
-    #should not be reached
+    #should not be Reached
     print "error, queue ended without finding answer"
     return root
 
@@ -424,7 +326,7 @@ while True:
 
     if(int(userInput) == 1):
         start1 = time.time()
-        x = findSolution2(userPuzzle, goalBoard, 1)
+        x = findSolution(userPuzzle, goalBoard, 1)
         end1 = time.time()
         time1 = end1 - start1
 
@@ -441,7 +343,7 @@ while True:
         print "Initial Misplaced Tiles is: " + repr(userPuzzle.getMisplacedTiles(goalBoard))
 
         start2 = time.time()
-        x = findSolution2(userPuzzle, goalBoard, 2)
+        x = findSolution(userPuzzle, goalBoard, 2)
         end2 = time.time()
         time2 = end2 - start2
 
@@ -458,7 +360,7 @@ while True:
         print "Initial Manhattan Distance is: " + repr(userPuzzle.getManhattanDistance(goalBoard))
 
         start3 = time.time()
-        x = findSolution2(userPuzzle, goalBoard, 3)
+        x = findSolution(userPuzzle, goalBoard, 3)
         end3 = time.time()
         time3 = end3 - start3
 

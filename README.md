@@ -11,3 +11,11 @@ A* with Misplaced Tiles Heuristic
 A* with Manhattan Distance Heuristic
 
 The program then returns the solution found, its depth, and the path to it from the initial state.
+
+How to use:
+The program will prompt you to either enter a custom puzzle or use the default
+then it will prompt you to choose the algorithm
+then it runs
+prints the depth, queue size, total nodes, and the path to the solution
+it then loops back and prompts again
+Enter -1 at any time to exit

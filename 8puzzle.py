@@ -185,11 +185,30 @@ def getDepth(node):
 #returns the path to the node in its tree
 def getPath(node):
     path = []
+    moves = []
     temp = node
     while temp != 0:
         path.append(temp)
         temp = temp.parent
     path.reverse()
+
+    for i in range(0, len(path) - 1):
+        if path[i].data.board.zeroloc.x < path[i + 1].data.board.zeroloc.x:
+            moves.append("Right,")
+        elif path[i].data.board.zeroloc.x > path[i + 1].data.board.zeroloc.x:
+            moves.append("Left,")
+        elif path[i].data.board.zeroloc.y < path[i + 1].data.board.zeroloc.y:
+            moves.append("Down,")
+        else:
+            moves.append("Up,")
+
+    print "Solution Path: "
+    for item in path:
+        item.data.display()
+    print "[ ",
+    for item in moves:
+        print item,
+    print " ]"
     return path
 
 def findSolution(puzzle, goal, type):
@@ -336,9 +355,6 @@ while True:
         print "Max Queue Size = " + repr(x.mQueue)
         print "Total Nodes = " + repr(x.tQueue)
         path = getPath(x)
-        print "Solution Path: "
-        for item in path:
-            item.data.display()
     elif(int(userInput) == 2):
         print "Initial Misplaced Tiles is: " + repr(userPuzzle.getMisplacedTiles(goalBoard))
 
@@ -353,9 +369,6 @@ while True:
         print "Max Queue Size = " + repr(x.mQueue)
         print "Total Nodes = " + repr(x.tQueue)
         path = getPath(x)
-        print "Solution Path: "
-        for item in path:
-            item.data.display()
     elif(int(userInput) == 3):
         print "Initial Manhattan Distance is: " + repr(userPuzzle.getManhattanDistance(goalBoard))
 
@@ -367,12 +380,9 @@ while True:
         print "3, Manhattan Distance Heuristic A*: " + repr(time3)
         count = getDepth(x)
         print "Solution Depth = " + repr(count)
-        path = getPath(x)
         print "Max Queue Size = " + repr(x.mQueue)
         print "Total Nodes = " + repr(x.tQueue)
-        print "Solution Path: "
-        for item in path:
-            item.data.display()
+        path = getPath(x)
     elif(int(userInput) == -1):
         raise SystemExit
     else:
@@ -396,13 +406,22 @@ while True:
         time3 = end3 - start3
 
         print "1, Uniform Cost Search: " + repr(time1)
-        print "2, Misplaced Tiles Heuristic A*: " + repr(time2)
-        print "3, Manhattan Distance Heuristic A*: " + repr(time3)
+        print "Solution Depth = " + repr(getDepth(x))
+        print "Max Queue Size = " + repr(x.mQueue)
+        print "Total Nodes = " + repr(x.tQueue)
+        print "Solution Path: "
+        path = getPath(x)
 
+        print "2, Misplaced Tiles Heuristic A*: " + repr(time2)
+        print "Solution Depth = " + repr(getDepth(y))
+        print "Max Queue Size = " + repr(y.mQueue)
+        print "Total Nodes = " + repr(y.tQueue)
+        print "Solution Path: "
+        path = getPath(y)
+
+        print "3, Manhattan Distance Heuristic A*: " + repr(time3)
         print "Solution Depth = " + repr(getDepth(z))
         print "Max Queue Size = " + repr(z.mQueue)
         print "Total Nodes = " + repr(z.tQueue)
-        path = getPath(z)
         print "Solution Path: "
-        for x in path:
-            x.data.display()
+        path = getPath(z)

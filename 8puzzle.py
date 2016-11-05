@@ -413,19 +413,16 @@ while True:
         print "Solution Depth = " + repr(getDepth(x))
         print "Max Queue Size = " + repr(x.mQueue)
         print "Total Nodes = " + repr(x.tQueue)
-        print "Solution Path: "
         path = getPath(x)
 
         print "2, Misplaced Tiles Heuristic A*: " + repr(time2)
         print "Solution Depth = " + repr(getDepth(y))
         print "Max Queue Size = " + repr(y.mQueue)
         print "Total Nodes = " + repr(y.tQueue)
-        print "Solution Path: "
         path = getPath(y)
 
         print "3, Manhattan Distance Heuristic A*: " + repr(time3)
         print "Solution Depth = " + repr(getDepth(z))
         print "Max Queue Size = " + repr(z.mQueue)
         print "Total Nodes = " + repr(z.tQueue)
-        print "Solution Path: "
         path = getPath(z)

@@ -282,14 +282,18 @@ def findSolution(puzzle, goal, type):
 
 while True:
     #take in input
-    userInput = raw_input("Welcome to Raymond Farias's puzzle solver: Enter 1 for the default puzzle, or 2 to enter your own. (-1 to exit)")
+    userInput = raw_input("Welcome to Raymond Farias's puzzle solver:\nEnter 1 for the default puzzle, or 2 to enter your own. (-1 to exit)\n")
     startBoard = []
     endBoard = []
     endBoard.append([1, 2, 3])
     endBoard.append([4, 5, 6])
     endBoard.append([7, 8, 0])
 
-    if(int(userInput) == 1):
+    if(int(userInput) == 0):
+        startBoard.append([4, 0, 1])
+        startBoard.append([7, 2, 3])
+        startBoard.append([5, 8, 6])
+    elif(int(userInput) == 1):
         #make default board
         # startBoard.append([1, 2, 3])
         # startBoard.append([4, 0, 6])
@@ -301,15 +305,15 @@ while True:
     elif(int(userInput) == 2):
         #take in user board
         print("Enter your puzzle, enter a zero to represent the blank.")
-        userInput = raw_input("Enter your first row, use space between numbers")
+        userInput = raw_input("Enter your first row, use space between numbers\n")
         tempList = map(int, userInput.split())
         print tempList
         startBoard.append(tempList)
-        userInput = raw_input("Enter your second row, use space between numbers")
+        userInput = raw_input("Enter your second row, use space between numbers\n")
         tempList = map(int, userInput.split())
         print tempList
         startBoard.append(tempList)
-        userInput = raw_input("Enter your third row, use space between numbers")
+        userInput = raw_input("Enter your third row, use space between numbers\n")
         tempList = map(int, userInput.split())
         print tempList
         startBoard.append(tempList)
@@ -330,7 +334,7 @@ while True:
         print ("Error, please enter a correct number.")
         raise "InputError"
 
-    userInput = raw_input("1: Uniform Cost Search \n2: A* with Misplaced Tile H. \n3: A* with Manhattan Distance H. (-1 to exit)")
+    userInput = raw_input("1: Uniform Cost Search \n2: A* with Misplaced Tile H. \n3: A* with Manhattan Distance H. (-1 to exit)\n")
 
     userBoard = Board(startBoard)
     goalBoard = Board(endBoard)

@@ -1,6 +1,6 @@
 Requires Python 2.7.11 to run.
 
-Solves a 8-Puzzle, printing the solution path to the goal state.
+Solves an 8-Puzzle, printing the solution path to the goal state.
 
 Details:
 The user may first choose either a default 8-puzzle or to enter their own custom 8 puzzle. (MUST BE SOLVABLE)
